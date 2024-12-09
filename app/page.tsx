@@ -1,22 +1,24 @@
-"use client";
+import MainPage from './components/MainPage';
 
-import Link from "next/link";
-import styled from "styled-components";
+export default async function Page() {
+  
+  const cryptoRes = await fetch(`http://localhost:3000/api/getCryptoData?coin=bitcoin`);
+  if (!cryptoRes.ok) {
+    throw new Error('Failed to fetch crypto data');
+  }
+  const cryptoData = await cryptoRes.json();
 
-const StyledDiv = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
+  const stockRes = await fetch(`http://localhost:3000/api/getStockData?symbol=AAPL`);
+  if (!stockRes.ok) {
+    throw new Error('Failed to fetch stock data');
+  }
+  const stockData = await stockRes.json();
 
-export default function Home() {
+  // pass the data as props to main page and other pages!!!!!!
   return (
-    <StyledDiv>
-      <h1>Investment for crypto and stocks</h1>
-      <p>View top gainers and losers in the stock market</p>
-      <Link href="/stocks">
-        <button>View Market Data</button>
-      </Link>
-    </StyledDiv>
+    <MainPage
+      cryptoData={cryptoData}
+      stockData={stockData}
+    />
   );
 }
