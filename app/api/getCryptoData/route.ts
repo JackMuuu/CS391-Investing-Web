@@ -1,39 +1,42 @@
+/*******************************************************************************
+* app/api/getCryptoData/route.ts
+*
+* Description:
+*     This is the API route for fetching cryptocurrency data. It fetches detailed
+* market data for the top 100 coins by market capitalization. 
+* 
+* Author:
+*     Justin Wang, Yuanman Mu
+*     justin1@bu.edu, ymmu@bu.edu
+*
+* Affiliation:
+*     Boston University
+*
+* Creation Date:
+*     December 7, 2024
+*
+*******************************************************************************/
+
 import { NextResponse } from 'next/server';
 
+// structure of a single cryptocurrency in the market
+interface MarketCoinData {
+    id: string;
+    name: string;
+    symbol: string;
+    image: string;
+    current_price: number;
+    market_cap: number;
+    market_cap_rank: number;
+    total_volume: number;
+    price_change_percentage_24h: number;
+  }
+
+// fetching function
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const coin = searchParams.get('coin');
-
-    // if specific coin is specified in params, fetch market data for that coin
-    if (coin) {
-      const res = await fetch(`https://api.coingecko.com/api/v3/coins/${coin}`, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!res.ok) {
-        return NextResponse.json(
-          { error: `Failed to fetch data for ${coin}` },
-          { status: res.status }
-        );
-      }
-
-      const coinJson = await res.json();
-      const responseData = {
-        name: coinJson.name,
-        image: coinJson.image?.large,
-        price: coinJson.market_data?.current_price?.usd,
-        change: coinJson.market_data?.price_change_24h,
-        change_percentage: coinJson.market_data?.price_change_percentage_24h,
-        volume: coinJson.market_data?.total_volume?.usd,
-      };
-
-      return NextResponse.json(responseData, { status: 200 });
-    }
     
-    // if no specific coin is specified in params, fetch market data for top 100 coins
+    // fetch market data for top 100 coins
     const marketRes = await fetch(
       'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false',
       {
@@ -44,6 +47,7 @@ export async function GET(request: Request) {
       }
     );
 
+    // check if the response from CoinGecko is successful
     if (!marketRes.ok) {
       return NextResponse.json(
         { error: 'Failed to fetch market data' },
@@ -51,19 +55,10 @@ export async function GET(request: Request) {
       );
     }
 
-    const marketData = await marketRes.json();
-    const formattedMarketData = marketData.map((coin: any) => ({
-      name: coin.name,
-      symbol: coin.symbol,
-      image: coin.image,
-      current_price: coin.current_price,
-      market_cap: coin.market_cap,
-      market_cap_rank: coin.market_cap_rank,
-      total_volume: coin.total_volume,
-      price_change_percentage_24h: coin.price_change_percentage_24h
-    }));
+    // parse JSON from the response
+    const marketData: MarketCoinData[] = await marketRes.json();
 
-    return NextResponse.json(formattedMarketData, { status: 200 });
+    return NextResponse.json(marketData, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Unknown error occurred' },
