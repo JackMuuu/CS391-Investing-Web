@@ -1,33 +1,48 @@
-// import { NextResponse } from "next/server";
-
-// export const dynamic = "force-dynamic";
-
-// const ALPHA_VANTAGE_API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
-
-// export async function GET(request) {
-//   // Using String-deconstruction, extract search parameters from the URL
-//   const searchParams = new URL(request.url).searchParams;
-
-//   // No parameters needed for this endpoint as it gets top gainers/losers
-//   const res = await fetch(
-//     `https://www.alphavantage.co/query?function=TOP_GAINERS_LOSERS&apikey=${ALPHA_VANTAGE_API_KEY}`
-//   );
-
-//   // If the API request fails, return a 500 Internal Server Error response
-//   if (res.status !== 200) {
-//     return NextResponse.json(
-//       { error: "Failed to fetch data" },
-//       { status: 500 }
-//     );
-//   }
-
-//   // Parse the JSON data from the API response
-//   const data = await res.json();
-
-//   // Return the parsed data in the response as JSON
-//   return NextResponse.json(data);
-// }
-
+/*******************************************************************************
+* app/api/getStockData/route.ts
+*
+* Description:
+*     A Next.js API route handler that fetches stock market data from Alpha 
+* Vantage API. The route supports two modes of operation: fetching individual 
+* stock data when a symbol parameter is provided, and fetching top gainers/losers 
+* data when no parameters are specified. This route is used to provide data for 
+* both the main page's stock display and the detailed stock tables.
+*
+* API Endpoints:
+*     - GET /api/getStockData?symbol={symbol} : Returns specific stock data
+*     - GET /api/getStockData : Returns top gainers/losers data
+*
+* Environment Variables:
+*     - ALPHA_VANTAGE_API_KEY: API key for accessing Alpha Vantage services
+*
+* Response Format:
+*     For specific symbol:
+*         {
+*             stockName: string,
+*             stockPrice: string,
+*             stockChange: string,
+*             stockChangePercent: string,
+*             stockVolume: string
+*         }
+*     
+*     For top gainers/losers:
+*         Returns raw Alpha Vantage API response
+*
+* Error Handling:
+*     - Returns 500 status code for failed API requests
+*     - Returns 500 status code when quote data is unavailable
+*
+* Author:
+*     Shuwei Zhu
+*     david996@bu.edu
+*
+* Affiliation:
+*     Boston University
+*
+* Creation Date:
+*     December 7, 2024
+*
+*******************************************************************************/
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
